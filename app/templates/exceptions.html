@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Backups</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+    </head>
+    <body>
+        <table class="pretty-table">
+            <tr>
+                <th>Hostname</th>
+                <th>Mount point</th>
+            </tr>
+            {% for host in exceptions %}
+           <tr>
+                <td class="ignored">{{ host['hostname']}}</td>
+                <td class="ignored">{{ host['mountpoint']}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

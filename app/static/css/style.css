@@ -1,0 +1,23 @@
+th {
+    text-align: left;
+}
+
+th, td {
+    padding: 10px 50px;
+}
+
+.bad {
+    background-color: #ff0000;
+}
+
+.good {
+    background-color: #00ff00;
+}
+
+.ignore {
+    background-color: #b2a4e6;
+}
+
+.pretty-table {
+    background-color: #b1b1b1
+}

@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Backups</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+    </head>
+    <body>
+        <table class="pretty-table">
+            <tr>
+                <th>Hostname</th>
+                <th>Mount point</th>
+                <th>Backed up</th>
+                <th>Excluded</th>
+            </tr>
+            {% for host in hostinfo %}
+            {% if host['backedup'] == 0 %}
+                {% set style = 'bad' %}
+                {% set value = 'No' %}
+            {% else %}
+                {% set style = 'good' %}
+                {% set value = 'Yes' %}
+            {% endif %}
+            {% if host['ignore'] == 1 %}
+                {% set style = 'ignore' %}
+                {% set ignore = 'Yes' %}
+            {% else %}
+                {% set ignore = 'No' %}
+            {% endif %}
+           <tr>
+                <td class={{ style }}>{{ host['hostname']}}</td>
+                <td class={{ style }}>{{ host['mountpoint']}}</td>
+                <td class={{ style }}>{{ value }}</td>
+                <td class={{ style }}>{{ ignore }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
