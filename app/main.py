@@ -190,7 +190,7 @@ def new_exception():
 
     if flask.request.method == 'POST':
         hostname = flask.request.form['hostname']
-        mountpoint = flask.request.form['mountpoint']
+        mountpoint = flask.request.form['mountpoint'].rstrip('/')  # trim trailing slashes
     else:
         hostname = flask.request.args.get('hostname')
         mountpoint = flask.request.args.get('mountpoint').rstrip('/')  # trim trailing slashes
