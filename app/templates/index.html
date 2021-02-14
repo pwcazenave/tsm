@@ -23,7 +23,7 @@
 
             {% for host in hostinfo[type] %}
                 <thead>
-                    <td colspan=3 class="host-row">{{ host }}</td>
+                    <td colspan=3 class="host-row"><a href="https://wikipd/{{ host }}">{{ host }}</a></td>
                 </thead>
                 {% for backup in hostinfo[type][host] %}
                     {% if backup['backedup'] == 0 %}
