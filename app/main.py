@@ -82,7 +82,22 @@ def root():
 
     hostinfo = HostDirectory.query.filter_by().order_by(HostDirectory.hostname, HostDirectory.backedup, HostDirectory.mountpoint).all()
 
-    return flask.render_template('index.html', hostinfo=hostinfo)
+    # Group into: not backed up, ignore and backed up, each of which is per host.
+    hosts = {'bad': {}, 'good': {}, 'ignored': {}}
+    for record in hostinfo:
+        config = {'mountpoint': record.mountpoint, 'backedup': record.backedup, 'ignore': record.ignore}
+        if record.ignore == 1:
+            dest = 'ignored'
+        elif record.backedup == 0:
+            dest = 'bad'
+        elif record.backedup == 1:
+            dest = 'good'
+        try:
+            hosts[dest][record.hostname].append(config)
+        except KeyError:
+            hosts[dest][record.hostname] = [config]
+
+    return flask.render_template('index.html', hostinfo=hosts)
 
 
 @app.route('/update', methods=['GET', 'POST'])
@@ -93,20 +108,26 @@ def update():
     """
 
     if flask.request.method == 'POST':
-        hostname = flask.request.form['set-leave-month']
-        mountpoint = flask.request.form['mountpoint']
+        hostname = flask.request.form['hostname']
+        mountpoint = flask.request.form['mountpoint'].rstrip('/')  # trim trailing slashes
         backedup = flask.request.form['backedup']
         ignore = flask.request.form['ignore']
+        redirect = flask.request.form['redirect']
     else:
         hostname = flask.request.args.get('hostname')
-        mountpoint = flask.request.args.get('mountpoint')
+        mountpoint = flask.request.args.get('mountpoint').rstrip('/')  # trim trailing slashes
         backedup = flask.request.args.get('backedup')
         ignore = flask.request.args.get('ignore')
+        redirect = flask.request.args.get('redirect')
 
     if backedup is None:
         backedup = 0
     if ignore is None:
         ignore = 0
+    if redirect is None:
+        redirect = 0
+    else:
+        redirect = int(redirect)
 
     # Remove the existing entry for this host/path combo and replace it with the new data.
     hostdir = HostDirectory.query.filter_by(hostname=hostname, mountpoint=mountpoint)
@@ -119,7 +140,10 @@ def update():
 
     response = {'status': True, 'status_code': 200}
 
-    return flask.jsonify(response)
+    if redirect == 1:
+        return flask.redirect(flask.url_for('root'))
+    else:
+        return flask.jsonify(response)
 
 
 @app.route('/query', methods=['GET', 'POST'])
@@ -130,11 +154,11 @@ def query():
     """
 
     if flask.request.method == 'POST':
-        hostname = flask.request.form['set-leave-month']
-        mountpoint = flask.request.form['mountpoint']
+        hostname = flask.request.form['hostname']
+        mountpoint = flask.request.form['mountpoint'].rstrip('/')  # trim trailing slashes
     else:
         hostname = flask.request.args.get('hostname')
-        mountpoint = flask.request.args.get('mountpoint')
+        mountpoint = flask.request.args.get('mountpoint').rstrip('/')  # trim trailing slashes
 
     hostdir = HostDirectory.query.filter_by(hostname=hostname, mountpoint=mountpoint).first()
 
@@ -157,6 +181,32 @@ def exceptions():
 
     return flask.render_template('exceptions.html', exceptions=exceptions)
 
+@app.route('/exceptions/add', methods=['GET', 'POST'])
+def new_exception():
+    """
+    Add an exception for a host.
+
+    """
+
+    if flask.request.method == 'POST':
+        hostname = flask.request.form['hostname']
+        mountpoint = flask.request.form['mountpoint']
+    else:
+        hostname = flask.request.args.get('hostname')
+        mountpoint = flask.request.args.get('mountpoint').rstrip('/')  # trim trailing slashes
+
+    exceptions = HostDirectory.query.filter_by(hostname=hostname, mountpoint=mountpoint).first()
+    if exceptions:
+        exceptions.ignore = 1
+    else:
+        hostdir = HostDirectory(hostname=hostname, mountpoint=mountpoint, ignore=1)
+        db.session.add(hostdir)
+
+    db.session.commit()
+
+    return flask.render_template('exceptions.html', exceptions=exceptions)
+
+
 
 def main():
     app.run(host=host,
@@ -164,6 +214,7 @@ def main():
             debug=debug,
             use_reloader=use_reloader,
             extra_files=['./app/templates/index.html',
+                         './app/static/js/scripts.js',
                          './app/static/css/style.css'])
 
 

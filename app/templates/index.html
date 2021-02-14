@@ -5,34 +5,61 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
     </head>
     <body>
+        {% for type in hostinfo.keys() %}
         <table class="pretty-table">
-            <tr>
-                <th>Hostname</th>
-                <th>Mount point</th>
-                <th>Backed up</th>
-                <th>Excluded</th>
-            </tr>
-            {% for host in hostinfo %}
-            {% if host['backedup'] == 0 %}
-                {% set style = 'bad' %}
-                {% set value = 'No' %}
+            <colgroup>
+                <col span="1" style="width: 4%">
+                <col span="1" style="width: 65%">
+                <col span="1" style="width: 15%">
+            </colgroup>
+            <h1>
+                {{ type | title }}
+            </h1>
+            <thead>
+                <td></td>
+                <td>Mount point</td>
+                <td></td>
+            </thead>
+            {% if type == 'good' %}
+                {% set colspan = 2 %}
             {% else %}
-                {% set style = 'good' %}
-                {% set value = 'Yes' %}
+                {% set colspan = 0 %}
             {% endif %}
-            {% if host['ignore'] == 1 %}
-                {% set style = 'ignore' %}
-                {% set ignore = 'Yes' %}
-            {% else %}
-                {% set ignore = 'No' %}
-            {% endif %}
-           <tr>
-                <td class={{ style }}>{{ host['hostname']}}</td>
-                <td class={{ style }}>{{ host['mountpoint']}}</td>
-                <td class={{ style }}>{{ value }}</td>
-                <td class={{ style }}>{{ ignore }}</td>
-            </tr>
+
+            {% for host in hostinfo[type] %}
+                <thead>
+                    <td colspan=3 class="host-row">{{ host }}</td>
+                </thead>
+                {% for backup in hostinfo[type][host] %}
+                    {% if backup['backedup'] == 0 %}
+                        {% set style = 'bad' %}
+                        {% set img = 'img/White_x_in_red_rounded_square.svg' %}
+                    {% else %}
+                        {% set style = 'good' %}
+                        {% set img = 'img/White_check_mark_in_dark_green_rounded_square.svg' %}
+                    {% endif %}
+                    {% if backup['ignore'] == 1 %}
+                        {% set style = 'ignore' %}
+                        {% set img = 'img/White_i_in_purple_rounded_square.svg' %}
+                    {% endif %}
+            <tbody>
+                <tr>
+                    <td class="{{ style }}"><img src={{ img }} width=20px></td>
+                    <td class="{{ style }}" colspan="{{ colspan }}">{{ backup['mountpoint'] }}</td>
+                {% if type == 'bad' %}
+                    <td class="{{ style }}"><a href="/update?hostname={{ host }}&mountpoint={{ backup['mountpoint'] }}&ignore=1&redirect=1">Ignore</a></td>
+                {% elif type == 'ignored' %}
+                    <td class="{{ style }}"><a href="/update?hostname={{ host }}&mountpoint={{ backup['mountpoint'] }}&ignore=0&redirect=1">Unignore</a></td>
+                {% endif %}
+                </tr>
+            </tbody>
+                {% endfor %}
             {% endfor %}
         </table>
+        {% endfor %}
+
+        <p>Icon sources from Wikipedia <a href="https://commons.wikimedia.org/w/index.php?curid=56506790">[1]</a> <a href="https://commons.wikimedia.org/w/index.php?curid=56507009">[2]</a> <a href="https://commons.wikimedia.org/w/index.php?curid=56506559">[3]</a> under CC BY 4.0</p>
+
     </body>
+    <script src="{{ url_for('static', filename='js/post.js') }}"></script>
 </html>
