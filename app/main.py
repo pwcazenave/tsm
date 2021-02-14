@@ -85,6 +85,7 @@ def root():
     hosts = {'bad': {}, 'good': {}, 'ignored': {}}
     for record in hostinfo:
         config = {'mountpoint': record.mountpoint, 'backedup': record.backedup, 'ignore': record.ignore}
+        dest = ''
         if record.ignore == 1:
             dest = 'ignored'
         elif record.backedup == 0:
@@ -121,8 +122,12 @@ def update():
 
     if backedup is None:
         backedup = 0
+    else:
+        backedup = int(backedup)
     if ignore is None:
         ignore = 0
+    else:
+        ignore = int(ignore)
     if redirect is None:
         redirect = 0
     else:
@@ -137,11 +142,10 @@ def update():
     db.session.add(hostdir)
     db.session.commit()
 
-    response = {'status': True, 'status_code': 200}
-
     if redirect == 1:
         return flask.redirect(flask.url_for('root'))
     else:
+        response = {'status': True, 'status_code': 200}
         return flask.jsonify(response)
 
 
