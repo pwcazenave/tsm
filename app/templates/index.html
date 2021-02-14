@@ -12,19 +12,16 @@
                 <col span="1" style="width: 65%">
                 <col span="1" style="width: 15%">
             </colgroup>
-            <h1>
-                {{ type | title }}
-            </h1>
+            <h1>{{ type | title }}</h1>
             {% if type == 'good' %}
                 {% set colspan = 2 %}
             {% else %}
                 {% set colspan = 0 %}
             {% endif %}
-
             {% for host in hostinfo[type] %}
-                <thead>
-                    <td colspan=3 class="host-row"><a href="https://wikipd/{{ host }}">{{ host }}</a></td>
-                </thead>
+            <thead>
+                <td colspan="3" class="host-row"><a href="https://wikipd/{{ host }}">{{ host }}</a></td>
+            </thead>
                 {% for backup in hostinfo[type][host] %}
                     {% if backup['backedup'] == 0 %}
                         {% set style = 'bad' %}
@@ -56,5 +53,4 @@
         <p>Icon sources from Wikipedia <a href="https://commons.wikimedia.org/w/index.php?curid=56506790">[1]</a> <a href="https://commons.wikimedia.org/w/index.php?curid=56507009">[2]</a> <a href="https://commons.wikimedia.org/w/index.php?curid=56506559">[3]</a> under CC BY 4.0</p>
 
     </body>
-    <script src="{{ url_for('static', filename='js/post.js') }}"></script>
 </html>
