@@ -10,10 +10,9 @@ ChangeLog
 """
 
 # TODO:
-#   - Add a simple UI with host/paths/tick|cross for quickly identifying which
-#   hosts are correctly configured
-#   - Add filter for only showing improperly configured hosts
-#   - Add front-end for adding exclusions
+#   [done] - Add a simple UI with host/paths/tick|cross for quickly identifying which hosts are correctly configured
+#   [done] - Add filter for only showing improperly configured hosts
+#   [done] - Add front-end for adding exclusions
 
 import logging
 import os
