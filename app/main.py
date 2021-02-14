@@ -171,43 +171,6 @@ def query():
     return flask.jsonify(response)
 
 
-@app.route('/exceptions', methods=['GET', 'POST'])
-def exceptions():
-    """
-    Show hosts and paths which are being ignored.
-
-    """
-    exceptions = HostDirectory.query.filter_by(ignore=1).all()
-
-    return flask.render_template('exceptions.html', exceptions=exceptions)
-
-@app.route('/exceptions/add', methods=['GET', 'POST'])
-def new_exception():
-    """
-    Add an exception for a host.
-
-    """
-
-    if flask.request.method == 'POST':
-        hostname = flask.request.form['hostname']
-        mountpoint = flask.request.form['mountpoint'].rstrip('/')  # trim trailing slashes
-    else:
-        hostname = flask.request.args.get('hostname')
-        mountpoint = flask.request.args.get('mountpoint').rstrip('/')  # trim trailing slashes
-
-    exceptions = HostDirectory.query.filter_by(hostname=hostname, mountpoint=mountpoint).first()
-    if exceptions:
-        exceptions.ignore = 1
-    else:
-        hostdir = HostDirectory(hostname=hostname, mountpoint=mountpoint, ignore=1)
-        db.session.add(hostdir)
-
-    db.session.commit()
-
-    return flask.render_template('exceptions.html', exceptions=exceptions)
-
-
-
 def main():
     app.run(host=host,
             port=port,
