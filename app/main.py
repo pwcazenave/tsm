@@ -174,6 +174,20 @@ def query():
     return flask.jsonify(response)
 
 
+@app.route('/clean', methods=['GET', 'POST'])
+def remove_all():
+    """
+    Remove all entries in the database.
+
+    """
+
+    HostDirectory.query.delete()
+    db.session.commit()
+
+    response = {'status': True, 'status_code': 200}
+    return flask.jsonify(response)
+
+
 def main():
     app.run(host=host,
             port=port,
